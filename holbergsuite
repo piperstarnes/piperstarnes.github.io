@@ -1,4 +1,7 @@
 <html>
+
+<script src="js/three.min.js"></script>
+
 <h1> Edvard Grieg's Holberg Suite </h1>
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Edvard_Grieg_(1888)_by_Elliot_and_Fry_-_02.jpg/315px-Edvard_Grieg_(1888)_by_Elliot_and_Fry_-_02.jpg"/>
 <p> The Holberg Suite, Op. 40, more properly known as From Holberg's Time (Norwegian: Fra Holbergs tid), subtitled "Suite in olden style" (Norwegian: Suite i gammel stil),
