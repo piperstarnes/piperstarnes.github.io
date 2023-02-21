@@ -1,6 +1,9 @@
 <html>
-<script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-<body>
+  <head>
+    <title>Piper's Holberg Suite</title>
+    <link rel="stylesheet" href="style.css" />
+     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  </head>
 <p>
 <h1> Edvard Grieg's Holberg Suite </h1>
 <img
