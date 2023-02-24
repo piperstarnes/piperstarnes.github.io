@@ -1,65 +1,60 @@
 <html>
   <head>
-    <title>Artist Info</title>
+    <meta charset="UTF-8">
+    <title>Most Influential Video Game Scores and Soundtracks</title>
   </head>
   <body>
-    <h1>Enter Artist Name:</h1>
-    <form>
-      <input type="text" id="artistName" name="artistName">
-      <br><br>
-      <input type="button" value="Get Info" onclick="getInfo()">
-    </form>
-    <h2 id="tracks"></h2>
-
+    <h1>Most Influential Video Game Scores and Soundtracks</h1>
+    <h2>Search for a Video Game</h2>
+    <p>Enter the name of a video game to see its score and soundtrack information:</p>
+    <input type="text" id="searchbox">
+    <button onclick="search()">Search</button>
+    <br><br>
+    <div id="results"></div>
+    <h2>Top Influential Video Game Scores and Soundtracks</h2>
+    <p>Based on user ratings and popularity:</p>
+    <div id="topscores"></div>
     <script>
-      function getInfo() {
-        // Retrieve the input value from the text box
-        var artistName = document.getElementById("artistName").value;
-        
-        // Construct the Spotify API URL to retrieve top tracks data
-        var spotifyUrl = "https://api.spotify.com/v1/search?q=" + artistName + "&type=artist&limit=1";
-        var spotifyToken = ""; // Insert your Spotify API token here
-        
-        // Send an AJAX request to retrieve the artist ID
-        var xhr1 = new XMLHttpRequest();
-        xhr1.open("GET", spotifyUrl);
-        xhr1.setRequestHeader("Authorization", "Bearer " + spotifyToken);
-        xhr1.onreadystatechange = function() {
-          if (xhr1.readyState === 4 && xhr1.status === 200) {
-            var spotifyData = JSON.parse(xhr1.responseText);
-            var artistId = spotifyData.artists.items[0].id;
-            var tracksUrl = "https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US";
-            
-            // Send an AJAX request to retrieve top tracks data
-            var xhr2 = new XMLHttpRequest();
-            xhr2.open("GET", tracksUrl);
-            xhr2.setRequestHeader("Authorization", "Bearer " + spotifyToken);
-            xhr2.onreadystatechange = function() {
-              if (xhr2.readyState === 4 && xhr2.status === 200) {
-                var tracksData = JSON.parse(xhr2.responseText);
-                var tracks = tracksData.tracks.map(function(track) {
-                  return {
-                    name: track.name,
-                    danceability: track.danceability,
-                    tempo: track.tempo,
-                    valence: track.valence,
-                    acousticness: track.acousticness,
-                    energy: track.energy
-                  };
-                });
-                var tracksHtml = "<table><tr><th>Name</th><th>Danceability</th><th>Tempo</th><th>Valence</th><th>Acousticness</th><th>Energy</th></tr>";
-                tracks.forEach(function(track) {
-                  tracksHtml += "<tr><td>" + track.name + "</td><td>" + track.danceability + "</td><td>" + track.tempo + "</td><td>" + track.valence + "</td><td>" + track.acousticness + "</td><td>" + track.energy + "</td></tr>";
-                });
-                tracksHtml += "</table>";
-                document.getElementById("tracks").innerHTML = tracksHtml;
-              }
-            };
-            xhr2.send();
-          }
-        };
-        xhr1.send();
+      function search() {
+        var query = document.getElementById("searchbox").value;
+        var url = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&titles=" + encodeURIComponent(query) + "&exsentences=10&exintro=1&explaintext=1&origin=*";
+        fetch(url)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(data) {
+            var pageId = Object.keys(data.query.pages)[0];
+            var summary = data.query.pages[pageId].extract;
+            var gameTitle = data.query.pages[pageId].title;
+            var gameUrl = "https://en.wikipedia.org/wiki/" + encodeURIComponent(gameTitle);
+            var scoreUrl = gameUrl + "#Soundtracks";
+            var results = "<h2>" + gameTitle + "</h2><p>" + summary + "</p><p><a href='" + gameUrl + "'>More information on Wikipedia</a></p><p><a href='" + scoreUrl + "'>Score and soundtrack information on Wikipedia</a></p>";
+            document.getElementById("results").innerHTML = results;
+          })
+          .catch(function(error) {
+            console.log(error);
+            document.getElementById("results").innerHTML = "An error occurred while searching. Please try again later.";
+          });
       }
+      
+      var topscoresUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&list=categorymembers&cmtitle=Category:Video_game_music&cmlimit=50&origin=*";
+      fetch(topscoresUrl)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          var topScores = "";
+          data.query.categorymembers.forEach(function(game) {
+            var gameTitle = game.title.replace(" (soundtrack)", "");
+            var gameUrl = "https://en.wikipedia.org/wiki/" + encodeURIComponent(gameTitle);
+            topScores += "<p><a href='" + gameUrl + "'>" + gameTitle + "</a></p>";
+          });
+          document.getElementById("topscores").innerHTML = topScores;
+        })
+        .catch(function(error) {
+          console.log(error);
+          document.getElementById("topscores").innerHTML = "An error occurred while loading top scores. Please try again later.";
+        });
     </script>
   </body>
 </html>
