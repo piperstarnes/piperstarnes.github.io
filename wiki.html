@@ -1,41 +1,72 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Wikipedia Page Views Counter</title>
+    <title>Artist Info</title>
   </head>
   <body>
-    <h1>Enter Wikipedia Page Link:</h1>
+    <h1>Enter Artist Name:</h1>
     <form>
-      <input type="text" id="wikipediaLink" name="wikipediaLink">
+      <input type="text" id="artistName" name="artistName">
       <br><br>
-      <input type="button" value="Get Views" onclick="getViews()">
+      <input type="button" value="Get Info" onclick="getInfo()">
     </form>
     <h2 id="views"></h2>
+    <h2 id="songs"></h2>
 
     <script>
-      function getViews() {
+      function getInfo() {
         // Retrieve the input value from the text box
-        var wikipediaLink = document.getElementById("wikipediaLink").value;
+        var artistName = document.getElementById("artistName").value;
         
-        // Extract the article title from the link
-        var articleTitle = wikipediaLink.split("/").pop();
-        
-        // Construct the API URL to retrieve page views data
-        var apiUrl = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/" + articleTitle + "/daily/20220101/20220223";
+        // Construct the Wikipedia URL to retrieve page views data
+        var wikipediaUrl = "https://en.wikipedia.org/w/api.php?action=query&titles=" + artistName + "&prop=pageviews&format=json";
         
         // Send an AJAX request to retrieve page views data
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", apiUrl);
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            var viewsData = JSON.parse(xhr.responseText);
-            var pageViews = viewsData.items.reduce(function(total, item) {
-              return total + item.views;
-            }, 0);
+        var xhr1 = new XMLHttpRequest();
+        xhr1.open("GET", wikipediaUrl);
+        xhr1.onreadystatechange = function() {
+          if (xhr1.readyState === 4 && xhr1.status === 200) {
+            var wikipediaData = JSON.parse(xhr1.responseText);
+            var pageViews = Object.values(wikipediaData.query.pages)[0].pageviews ? Object.values(wikipediaData.query.pages)[0].pageviews[Object.keys(wikipediaData.query.pages)[0]] : 0;
             document.getElementById("views").innerHTML = "Page Views: " + pageViews;
           }
         };
-        xhr.send();
-      }
-    </script>
-  </body>
-</html>
+        xhr1.send();
+        
+        // Construct the Spotify API URL to retrieve top tracks data
+        var spotifyUrl = "https://api.spotify.com/v1/search?q=" + artistName + "&type=artist&limit=1";
+        var spotifyToken = ""; // Insert your Spotify API token here
+        
+        // Send an AJAX request to retrieve the artist ID
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open("GET", spotifyUrl);
+        xhr2.setRequestHeader("Authorization", "Bearer " + spotifyToken);
+        xhr2.onreadystatechange = function() {
+          if (xhr2.readyState === 4 && xhr2.status === 200) {
+            var spotifyData = JSON.parse(xhr2.responseText);
+            var artistId = spotifyData.artists.items[0].id;
+            var tracksUrl = "https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US";
+            
+            // Send an AJAX request to retrieve top tracks data
+            var xhr3 = new XMLHttpRequest();
+            xhr3.open("GET", tracksUrl);
+            xhr3.setRequestHeader("Authorization", "Bearer " + spotifyToken);
+            xhr3.onreadystatechange = function() {
+              if (xhr3.readyState === 4 && xhr3.status === 200) {
+                var tracksData = JSON.parse(xhr3.responseText);
+                var tracks = tracksData.tracks.map(function(track) {
+                  return {
+                    name: track.name,
+                    danceability: track.danceability,
+                    tempo: track.tempo,
+                    valence: track.valence,
+                    acousticness: track.acousticness,
+                    energy: track.energy
+                  };
+                });
+                var songsHtml = "<ul>";
+                tracks.forEach(function(track) {
+                  songsHtml += "<li>" + track.name + " (danceability: " + track.danceability + ", tempo: " + track.tempo + ", valence: " + track.valence + ", acousticness: " + track.acousticness + ", energy: " + track.energy + ")</li>";
+                });
+                songsHtml += "</ul>";
+                document.getElementById("songs").innerHTML = songsHtml;
