@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wikipedia Page Views Counter</title>
+  </head>
+  <body>
+    <h1>Enter Wikipedia Page Link:</h1>
+    <form>
+      <input type="text" id="wikipediaLink" name="wikipediaLink">
+      <br><br>
+      <input type="button" value="Get Views" onclick="getViews()">
+    </form>
+    <h2 id="views"></h2>
+
+    <script>
+      function getViews() {
+        // Retrieve the input value from the text box
+        var wikipediaLink = document.getElementById("wikipediaLink").value;
+        
+        // Extract the article title from the link
+        var articleTitle = wikipediaLink.split("/").pop();
+        
+        // Construct the API URL to retrieve page views data
+        var apiUrl = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/" + articleTitle + "/daily/20220101/20220223";
+        
+        // Send an AJAX request to retrieve page views data
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", apiUrl);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var viewsData = JSON.parse(xhr.responseText);
+            var pageViews = viewsData.items.reduce(function(total, item) {
+              return total + item.views;
+            }, 0);
+            document.getElementById("views").innerHTML = "Page Views: " + pageViews;
+          }
+        };
+        xhr.send();
+      }
+    </script>
+  </body>
+</html>
