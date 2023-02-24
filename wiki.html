@@ -1,60 +1,51 @@
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Most Influential Video Game Scores and Soundtracks</title>
-  </head>
-  <body>
-    <h1>Most Influential Video Game Scores and Soundtracks</h1>
-    <h2>Search for a Video Game</h2>
-    <p>Enter the name of a video game to see its score and soundtrack information:</p>
-    <input type="text" id="searchbox">
-    <button onclick="search()">Search</button>
-    <br><br>
-    <div id="results"></div>
-    <h2>Top Influential Video Game Scores and Soundtracks</h2>
-    <p>Based on user ratings and popularity:</p>
-    <div id="topscores"></div>
-    <script>
-      function search() {
-        var query = document.getElementById("searchbox").value;
-        var url = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&titles=" + encodeURIComponent(query) + "&exsentences=10&exintro=1&explaintext=1&origin=*";
-        fetch(url)
-          .then(function(response) {
-            return response.json();
-          })
-          .then(function(data) {
-            var pageId = Object.keys(data.query.pages)[0];
-            var summary = data.query.pages[pageId].extract;
-            var gameTitle = data.query.pages[pageId].title;
-            var gameUrl = "https://en.wikipedia.org/wiki/" + encodeURIComponent(gameTitle);
-            var scoreUrl = gameUrl + "#Soundtracks";
-            var results = "<h2>" + gameTitle + "</h2><p>" + summary + "</p><p><a href='" + gameUrl + "'>More information on Wikipedia</a></p><p><a href='" + scoreUrl + "'>Score and soundtrack information on Wikipedia</a></p>";
-            document.getElementById("results").innerHTML = results;
-          })
-          .catch(function(error) {
-            console.log(error);
-            document.getElementById("results").innerHTML = "An error occurred while searching. Please try again later.";
-          });
-      }
-      
-      var topscoresUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&list=categorymembers&cmtitle=Category:Video_game_music&cmlimit=50&origin=*";
-      fetch(topscoresUrl)
-        .then(function(response) {
-          return response.json();
-        })
-        .then(function(data) {
-          var topScores = "";
-          data.query.categorymembers.forEach(function(game) {
-            var gameTitle = game.title.replace(" (soundtrack)", "");
-            var gameUrl = "https://en.wikipedia.org/wiki/" + encodeURIComponent(gameTitle);
-            topScores += "<p><a href='" + gameUrl + "'>" + gameTitle + "</a></p>";
-          });
-          document.getElementById("topscores").innerHTML = topScores;
-        })
-        .catch(function(error) {
-          console.log(error);
-          document.getElementById("topscores").innerHTML = "An error occurred while loading top scores. Please try again later.";
-        });
-    </script>
-  </body>
+<head>
+	<title>Taylor Swift Song Lyric Search</title>
+</head>
+<body>
+	<h1>Taylor Swift Song Lyric Search</h1>
+	<form>
+		<label for="search-word">Enter a word to search for in Taylor Swift's lyrics:</label><br>
+		<input type="text" id="search-word" name="search-word"><br><br>
+		<button type="button" onclick="searchLyrics()">Search</button>
+	</form>
+	<br>
+	<div id="results"></div>
+	<script>
+		function searchLyrics() {
+			let searchWord = document.getElementById("search-word").value;
+			let lyricsData = [
+				{
+					title: "Bad Blood",
+					lyrics: "'Cause baby, now we've got bad blood. You know it used to be mad love."
+				},
+				{
+					title: "Love Story",
+					lyrics: "Romeo, take me somewhere we can be alone. I'll be waiting, all there's left to do is run. You'll be the prince and I'll be the princess. It's a love story, baby, just say yes."
+				},
+				{
+					title: "Shake It Off",
+					lyrics: "'Cause the players gonna play, play, play, play, play. And the haters gonna hate, hate, hate, hate, hate. Baby, I'm just gonna shake, shake, shake, shake, shake. I shake it off, I shake it off."
+				},
+				{
+					title: "Blank Space",
+					lyrics: "Got a long list of ex-lovers. They'll tell you I'm insane. 'Cause you know I love the players. And you love the game."
+				}
+			];
+			let searchResults = "";
+			let count = 0;
+			for (let i = 0; i < lyricsData.length; i++) {
+				let songLyrics = lyricsData[i].lyrics.toLowerCase();
+				let regex = new RegExp(searchWord.toLowerCase(), "g");
+				let matches = songLyrics.match(regex);
+				if (matches !== null) {
+					count += matches.length;
+					searchResults += "<p>" + lyricsData[i].title + " - " + matches.length + " matches</p>";
+				}
+			}
+			searchResults += "<p>Total matches: " + count + "</p>";
+			document.getElementById("results").innerHTML = searchResults;
+		}
+	</script>
+</body>
 </html>
