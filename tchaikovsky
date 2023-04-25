@@ -1,0 +1,9 @@
+<html>
+<head>
+  <title>My MetaHuman</title>
+</head>
+<body>
+  <h1>Tchaikovsky MetaHuman</h1>
+  <object type="application/x-mhb" data="Tchaikovsky.mhb" width="600" height="400"></object>
+</body>
+</html>
